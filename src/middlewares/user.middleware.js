@@ -12,7 +12,6 @@ export const validateSignIn = (req, res, next) => {
     if ([email, password].includes(undefined)) {
         return res.status(400).json(new AppError(400, "All fields are required"));
     }
-    console.log(email, password);
     next();
 };
 
