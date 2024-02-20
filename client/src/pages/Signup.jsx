@@ -5,6 +5,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai";
+import OAuth from "../components/OAuth";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const Signup = () => {
@@ -92,6 +93,7 @@ const Signup = () => {
                             <Button gradientDuoTone="purpleToPink" type="submit" disabled={loading}>
                                 {loading ? <Spinner size={"sm"} color={"blue"} /> : "Sign Up"}
                             </Button>
+                            <OAuth />
                         </form>
 
                         <div className="flex gap-2 mt-4">
