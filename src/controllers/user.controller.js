@@ -97,3 +97,40 @@ export const deleteUser = async (req, res, next) => {
         next(new AppError(error.statusCode, error.message));
     }
 };
+
+export const googleAuth = async (req, res, next) => {
+    const { username, email, photo } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (user) {
+            const token = await user.generateToken();
+            const options = {
+                maxAge: 1000 * 60 * 60 * 24 * 4,
+                httpOnly: true,
+                // secure: true,
+            };
+            const { password: _, ...rest } = user._doc;
+            res.cookie("accessToken", token, options);
+            return res.status(200).json(new ApiResponse(200, "User signed in successfully", rest));
+        } else {
+            const password = Math.random().toString(36).slice(-8) + "@Google";
+            const newUser = await User.create({
+                username: username.toLowerCase().split(" ").join("") + Math.random().toString(9).slice(-3),
+                email,
+                password,
+                profilePic: photo,
+            });
+            const token = await newUser.generateToken();
+            const options = {
+                maxAge: 1000 * 60 * 60 * 24 * 4,
+                httpOnly: true,
+                // secure: true,
+            };
+            const { password: _, ...rest } = newUser._doc;
+            res.cookie("accessToken", token, options);
+            return res.status(200).json(new ApiResponse(200, "User signed in successfully", rest));
+        }
+    } catch (error) {
+        return next(new AppError(error.statusCode, error.message));
+    }
+};
