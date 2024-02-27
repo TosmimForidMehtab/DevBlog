@@ -10,6 +10,8 @@ import Projects from "./pages/Projects.jsx";
 import Header from "./components/Header.jsx";
 import { Button } from "flowbite-react";
 import FooterComponent from "./components/Footer.jsx";
+import PrivateRoute from "./components/PrivateRoute.jsx";
+import "./App.css";
 const App = () => {
     return (
         <>
@@ -20,7 +22,9 @@ const App = () => {
                 <Route path="/signin" element={<Signin />} />
                 <Route path="/signout" element={<Signout />} />
                 <Route path="/signup" element={<Signup />} />
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route element={<PrivateRoute />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                </Route>
                 <Route path="/projects" element={<Projects />} />
             </Routes>
             <FooterComponent />

@@ -11,15 +11,19 @@ import { errorHandler } from "./utils/ErrorHandler.js";
 const app = express();
 app.use(
     cors({
-        origin: "*",
+        origin: () => {
+            if (process.env.MODE === "DEV") {
+                return "http://localhost:5173";
+            }
+        },
         credentials: true,
     })
 );
 
+app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 connectDB();
 
 app.use("/api/v1/users", userRoutes);

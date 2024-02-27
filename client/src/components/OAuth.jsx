@@ -1,11 +1,11 @@
 import { Button } from "flowbite-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { AiFillGoogleCircle } from "react-icons/ai";
 import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
 import { app } from "../firebase";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { signInFailure, signInSuccess } from "../redux/user/userSlice";
+import { signInFailure, signInSuccess, setErrorMsg } from "../redux/user/userSlice";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -14,7 +14,11 @@ const OAuth = () => {
     const auth = getAuth(app);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    useEffect(() => {
+        dispatch(setErrorMsg());
+    }, []);
     const handleClick = async () => {
+        dispatch(setErrorMsg());
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({
             prompt: "select_account",
@@ -34,7 +38,10 @@ const OAuth = () => {
                     },
                 }
             );
-            dispatch(signInSuccess(response.data.data));
+            // dispatch(signInSuccess(response.data.data));
+            const { token, ...rest } = response.data.data;
+            dispatch(signInSuccess(rest));
+            localStorage.setItem("accessToken", JSON.stringify(token));
             navigate("/");
         } catch (error) {
             console.log(error);

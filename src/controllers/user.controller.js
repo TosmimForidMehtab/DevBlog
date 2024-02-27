@@ -48,10 +48,12 @@ export const signIn = async (req, res, next) => {
         const token = await user.generateToken();
         const options = {
             maxAge: 1000 * 60 * 60 * 24 * 4,
-            httpOnly: true,
-            // secure: true,
+            httpOnly: false,
+            secure: false,
+            sameSite: "none",
         };
         const { password: _, ...rest } = user._doc;
+        rest.token = token;
         res.cookie("accessToken", token, options);
 
         res.status(200).json(new ApiResponse(200, "User signed in successfully", rest));
@@ -106,10 +108,12 @@ export const googleAuth = async (req, res, next) => {
             const token = await user.generateToken();
             const options = {
                 maxAge: 1000 * 60 * 60 * 24 * 4,
-                httpOnly: true,
-                // secure: true,
+                httpOnly: false,
+                secure: false,
+                sameSite: "none",
             };
             const { password: _, ...rest } = user._doc;
+            rest.token = token;
             res.cookie("accessToken", token, options);
             return res.status(200).json(new ApiResponse(200, "User signed in successfully", rest));
         } else {
@@ -123,14 +127,37 @@ export const googleAuth = async (req, res, next) => {
             const token = await newUser.generateToken();
             const options = {
                 maxAge: 1000 * 60 * 60 * 24 * 4,
-                httpOnly: true,
-                // secure: true,
+                httpOnly: false,
+                secure: false,
+                sameSite: "none",
             };
             const { password: _, ...rest } = newUser._doc;
+            rest.token = token;
             res.cookie("accessToken", token, options);
             return res.status(200).json(new ApiResponse(200, "User signed in successfully", rest));
         }
     } catch (error) {
         return next(new AppError(error.statusCode, error.message));
+    }
+};
+
+export const updateUser = async (req, res, next) => {
+    try {
+        const { username, email, password, profilePic } = req.body;
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            {
+                $set: {
+                    username,
+                    email,
+                    password,
+                    profilePic,
+                },
+            },
+            { new: true }
+        ).select("-password");
+        res.status(200).json(new ApiResponse(200, "User updated successfully", user));
+    } catch (error) {
+        next(new AppError(error.statusCode, error.message));
     }
 };
