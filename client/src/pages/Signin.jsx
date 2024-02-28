@@ -29,14 +29,14 @@ const Signin = () => {
         dispatch(setErrorMsg());
         try {
             dispatch(signInStart());
+            console.log("Start");
             const response = await axios.post(`${API_URL}/users/signin`, formData, {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                withCredentials: true,
             });
-            // console.log(response.data.message);
             const { token, ...rest } = response.data.data;
+            console.log(rest);
             dispatch(signInSuccess(rest));
             localStorage.setItem("accessToken", token);
             setFormData({});

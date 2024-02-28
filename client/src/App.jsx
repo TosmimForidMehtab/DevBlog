@@ -12,6 +12,8 @@ import { Button } from "flowbite-react";
 import FooterComponent from "./components/Footer.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import "./App.css";
+import AdminRoute from "./components/AdminRoute.jsx";
+import CreatePost from "./pages/CreatePost.jsx";
 const App = () => {
     return (
         <>
@@ -24,6 +26,9 @@ const App = () => {
                 <Route path="/signup" element={<Signup />} />
                 <Route element={<PrivateRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} />
+                </Route>
+                <Route element={<AdminRoute />}>
+                    <Route path="/create-post" element={<CreatePost />} />
                 </Route>
                 <Route path="/projects" element={<Projects />} />
             </Routes>

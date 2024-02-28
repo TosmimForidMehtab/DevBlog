@@ -37,12 +37,12 @@ export const verifyToken = async (req, res, next) => {
         if (!user) {
             return res.status(401).json(new AppError(401, "Unauthorized"));
         }
-        if (req.params.id && req.params.id !== user._id.toString()) {
-            return res.status(401).json(new AppError(401, "Unauthorized"));
-        }
         req.user = user;
         next();
     } catch (error) {
+        if (error.name === "TokenExpiredError") {
+            return res.status(401).json(new AppError(401, "Token expired. Please login again"));
+        }
         return res.status(401).json(new AppError(401, "Unauthorized"));
     }
 };
@@ -80,6 +80,13 @@ export const validateUpdateUser = (req, res, next) => {
         })
     ) {
         return res.status(400).json(new AppError(400, "Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character."));
+    }
+    next();
+};
+
+export const verifyAdmin = (req, res, next) => {
+    if (!req.user.isAdmin) {
+        return res.status(401).json(new AppError(401, "Unauthorized"));
     }
     next();
 };

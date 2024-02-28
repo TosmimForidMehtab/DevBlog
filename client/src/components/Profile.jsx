@@ -1,14 +1,15 @@
-import { Alert, Button, Spinner, TextInput } from "flowbite-react";
+import { Alert, Button, Modal, Spinner, TextInput } from "flowbite-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { app } from "../firebase";
-import { updateStart, updateSuccess, updateFailure, setErrorMsg } from "../redux/user/userSlice";
+import { updateStart, updateSuccess, updateFailure, setErrorMsg, deleteUserStart, deleteUserSuccess, deleteUserFailure, singOutSuccess } from "../redux/user/userSlice";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Profile = () => {
@@ -17,9 +18,13 @@ const Profile = () => {
     const [imageFileUrl, setImageFileUrl] = useState(null);
     const [fileUploadProgress, setFileUploadProgress] = useState(null);
     const [fileUploadError, setFileUploadError] = useState(null);
+    const [fileUploading, setFileUploading] = useState(false);
     const fileRef = useRef(null);
+    const [userUpdateSuccess, setuserUpdateSuccess] = useState(false);
     const dispatch = useDispatch();
     const [formData, setformData] = useState({});
+    const [showModal, setShowModal] = useState(false);
+    const navigate = useNavigate();
     const handleImageChange = (e) => {
         dispatch(setErrorMsg());
         const file = e.target.files[0];
@@ -39,6 +44,7 @@ const Profile = () => {
     const uploadImage = async () => {
         setFileUploadError(null);
         dispatch(setErrorMsg());
+        setFileUploading(true);
         const storage = getStorage(app);
         const fileName = new Date().getTime() + imageFile.name;
         const storageRef = ref(storage, fileName);
@@ -54,6 +60,7 @@ const Profile = () => {
                 setFileUploadProgress(null);
                 setImageFileUrl(null);
                 setImageFile(null);
+                setFileUploading(false);
             },
             () => {
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
@@ -62,6 +69,7 @@ const Profile = () => {
                         ...formData,
                         profilePic: downloadURL,
                     });
+                    setFileUploading(false);
                 });
             }
         );
@@ -78,7 +86,7 @@ const Profile = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         dispatch(setErrorMsg());
-        if (Object.keys(formData).length === 0) {
+        if (Object.keys(formData).length === 0 || fileUploading) {
             return;
         }
 
@@ -89,11 +97,39 @@ const Profile = () => {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
                 },
-                withCredentials: true,
             });
             dispatch(updateSuccess(response.data.data));
+            setuserUpdateSuccess(true);
         } catch (error) {
-            dispatch(updateFailure(error.response?.data || error.message));
+            console.log(error);
+            dispatch(updateFailure(error.response?.data.message || error.message));
+        }
+    };
+    const handleDelete = async () => {
+        setShowModal(false);
+        dispatch(setErrorMsg());
+        try {
+            dispatch(deleteUserStart());
+            const _ = await axios.delete(`${API_URL}/users/${user._id}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+            });
+            dispatch(deleteUserSuccess());
+            localStorage.removeItem("accessToken");
+            navigate("/login");
+        } catch (error) {
+            dispatch(deleteUserFailure(error.response?.data.message || error.message));
+        }
+    };
+    const handleSignout = () => {
+        try {
+            const _ = axios.post(`${API_URL}/users/signout`);
+            dispatch(singOutSuccess());
+            localStorage.removeItem("accessToken");
+        } catch (error) {
+            console.log(error);
         }
     };
     return (
@@ -141,13 +177,63 @@ const Profile = () => {
                     {loading ? <Spinner size={"sm"} color={"blue"} /> : "Update"}
                 </Button>
 
+                {user && user.isAdmin && (
+                    <Button type="button" gradientDuoTone={"purpleToPink"} className="w-full mt-3" onClick={() => navigate("/create-post")}>
+                        Create Post
+                    </Button>
+                )}
+
                 <div className="flex justify-between mt-5 text-red-500 font-semibold">
-                    <span className="cursor-pointer">Delete Account</span>
-                    <span className="cursor-pointer">Sign Out</span>
+                    <span className="cursor-pointer" onClick={() => setShowModal(true)}>
+                        Delete Account
+                    </span>
+                    <span className="cursor-pointer" onClick={handleSignout}>
+                        Sign Out
+                    </span>
                 </div>
             </form>
 
             {errorMsg && <ToastContainer position="top-center">{toast.error(errorMsg)}</ToastContainer>}
+            {userUpdateSuccess && <ToastContainer position="top-center">{toast.success("Profile updated successfully")}</ToastContainer>}
+
+            <Modal show={showModal} onClose={() => setShowModal(false)} popup size={"md"}>
+                <Modal.Header />
+                <Modal.Body>
+                    <div className="text-center">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-20 h-20 text-red-500 mx-auto"
+                            viewBox="0 0 24 24"
+                            strokeWidth="2"
+                            stroke="currentColor"
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <line x1="4" y1="7" x2="20" y2="7" />
+                            <line x1="10" y1="11" x2="10" y2="17" />
+                            <line x1="14" y1="11" x2="14" y2="17" />
+                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                            <path
+                                d="M9 7v-3a1 1 0 0 1 1 -1h
+                                4a1 1 0 0 1 1 1v3"
+                            />
+                        </svg>
+
+                        <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-200">Are you sure you want to delete your account?</h3>
+
+                        <div className="flex justify-center gap-4">
+                            <Button color="failure" onClick={handleDelete}>
+                                Yes, I'm sure
+                            </Button>
+                            <Button color="gray" onClick={() => setShowModal(false)}>
+                                No, cancel
+                            </Button>
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
     );
 };

@@ -92,6 +92,9 @@ export const getUser = async (req, res, next) => {
 };
 
 export const deleteUser = async (req, res, next) => {
+    if (req.params.id !== req.user._id.toString()) {
+        return next(new AppError(401, "You are not authorized to delete this user"));
+    }
     try {
         const user = await User.findByIdAndDelete(req.params.id);
         res.status(200).json(new ApiResponse(200, "User deleted successfully", user));
@@ -142,6 +145,9 @@ export const googleAuth = async (req, res, next) => {
 };
 
 export const updateUser = async (req, res, next) => {
+    if (req.user._id.toString() !== req.params.id) {
+        return next(new AppError(403, "You are unauthorized to update this resource"));
+    }
     try {
         const { username, email, password, profilePic } = req.body;
         const user = await User.findByIdAndUpdate(
@@ -157,6 +163,14 @@ export const updateUser = async (req, res, next) => {
             { new: true }
         ).select("-password");
         res.status(200).json(new ApiResponse(200, "User updated successfully", user));
+    } catch (error) {
+        next(new AppError(error.statusCode, error.message));
+    }
+};
+
+export const signOut = (req, res, next) => {
+    try {
+        res.clearCookie("accessToken").status(200).json(new ApiResponse(200, "User signed out successfully"));
     } catch (error) {
         next(new AppError(error.statusCode, error.message));
     }
