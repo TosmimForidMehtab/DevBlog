@@ -86,7 +86,7 @@ export const validateUpdateUser = (req, res, next) => {
 
 export const verifyAdmin = (req, res, next) => {
     if (!req.user.isAdmin) {
-        return res.status(401).json(new AppError(401, "Unauthorized"));
+        return res.status(401).json(new AppError(401, "You are not authorized to perform this action"));
     }
     next();
 };

@@ -1,5 +1,5 @@
 export const errorHandler = (error, req, res, next) => {
-    const statusCode = error.statusCode;
+    const statusCode = error.statusCode || 500;
     const message = error.message;
     const data = error.data;
     const stack = error.stack;
