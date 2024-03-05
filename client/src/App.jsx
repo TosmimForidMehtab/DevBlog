@@ -6,7 +6,6 @@ import Signin from "./pages/Signin.jsx";
 import Signout from "./pages/Signout.jsx";
 import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
-import Projects from "./pages/Projects.jsx";
 import Header from "./components/Header.jsx";
 import { Button } from "flowbite-react";
 import FooterComponent from "./components/Footer.jsx";
@@ -14,9 +13,13 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import "./App.css";
 import AdminRoute from "./components/AdminRoute.jsx";
 import CreatePost from "./pages/CreatePost.jsx";
+import UpdatePost from "./pages/UpdatePosts.jsx";
+import Post from "./pages/Post.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 const App = () => {
     return (
         <>
+            <ScrollToTop />
             <Header />
             <Routes>
                 <Route path="/" element={<Home />} />
@@ -29,8 +32,9 @@ const App = () => {
                 </Route>
                 <Route element={<AdminRoute />}>
                     <Route path="/create-post" element={<CreatePost />} />
+                    <Route path="/update-post/:id" element={<UpdatePost />} />
                 </Route>
-                <Route path="/projects" element={<Projects />} />
+                <Route path="/post/:slug" element={<Post />} />
             </Routes>
             <FooterComponent />
         </>

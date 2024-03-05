@@ -19,7 +19,7 @@ const FooterComponent = () => {
                         <div>
                             <Footer.Title title="About" />
                             <Footer.LinkGroup col={true}>
-                                <Footer.Link href={import.meta.env.VITE_APP_URL} target="_blank" rel="noreferrer noopener">
+                                <Footer.Link href={`${import.meta.env.VITE_APP_URL}/about`} target="_blank" rel="noreferrer noopener">
                                     Dev's Blog
                                 </Footer.Link>
                             </Footer.LinkGroup>

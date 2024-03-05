@@ -27,8 +27,23 @@ export const createUser = async (req, res, next) => {
 
 export const getAllUsers = async (req, res, next) => {
     try {
-        const users = await User.find().select("-password");
-        res.status(200).json(new ApiResponse(200, "Users fetched successfully", users));
+        const startIndex = parseInt(req.query.startIndex) || 0;
+        const limit = parseInt(req.query.limit) || 9;
+
+        const sortDirection = req.query.sort === "asc" ? 1 : -1;
+
+        const users = await User.find().select("-password").sort({ createdAt: sortDirection }).skip(startIndex).limit(limit);
+
+        const totalUsers = await User.countDocuments();
+
+        const now = new Date();
+        const lastMonthUsers = await User.countDocuments({
+            createdAt: {
+                $gte: new Date(now.getFullYear(), now.getMonth() - 1, 1),
+                $lte: new Date(now.getFullYear(), now.getMonth(), 0),
+            },
+        });
+        res.status(200).json(new ApiResponse(200, "Users fetched successfully", { users, totalUsers, lastMonthUsers }));
     } catch (error) {
         next(new AppError(error.statusCode, error.message));
     }
@@ -73,7 +88,8 @@ export const signIn = async (req, res, next) => {
 export const getUser = async (req, res, next) => {
     try {
         const { email, username } = req.body;
-        const user = await User.findOne({ $or: [{ username }, { email }] }).select("-password");
+        const { id } = req.params;
+        const user = await User.findOne({ $or: [{ username }, { email }, { _id: id }] }).select("-password");
         if (!user) {
             return next(new AppError(404, "User not found"));
         }
@@ -92,7 +108,7 @@ export const getUser = async (req, res, next) => {
 };
 
 export const deleteUser = async (req, res, next) => {
-    if (req.params.id !== req.user._id.toString()) {
+    if (!req.user.isAdmin && req.params.id !== req.user._id.toString()) {
         return next(new AppError(401, "You are not authorized to delete this user"));
     }
     try {

@@ -1,5 +1,5 @@
 import { User } from "../models/user.model.js";
-import { AppError } from "../utils/AppError.js";
+import { AppError } from "../utils/appError.js";
 import jwt from "jsonwebtoken";
 import validator from "validator";
 export const validateCreateUser = (req, res, next) => {
@@ -20,7 +20,7 @@ export const validateSignIn = (req, res, next) => {
 
 export const vlaidateGetUser = (req, res, next) => {
     const { email, username } = req.body;
-    if (!email || !username) {
+    if (!(email || username || req.params.id)) {
         return res.status(400).json(new AppError(400, "Atleast one field is required"));
     }
     next();
@@ -88,5 +88,6 @@ export const verifyAdmin = (req, res, next) => {
     if (!req.user.isAdmin) {
         return res.status(401).json(new AppError(401, "You are not authorized to perform this action"));
     }
+    // console.log(req.user);
     next();
 };

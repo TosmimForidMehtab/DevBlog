@@ -1,1 +1,2 @@
 [-] Automatically creates user with null in redux even when not signed in and shows home page
+[-] Updated from data not working when image is changed

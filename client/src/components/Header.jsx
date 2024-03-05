@@ -22,7 +22,7 @@ const Header = () => {
         }
     };
     return (
-        <Navbar className="border-b-4">
+        <Navbar className="border-b-4 sticky top-0 z-50">
             <Link to="/" className="text-sm sm:text-xl font-semibold whitespace-nowrap self-center dark:text-white">
                 <span className="px-2 py-1 mr-1 bg-indigo-500 rounded-s-full text-white">Dev's</span>
                 <span className="px-2 py-1 bg-red-500 rounded-e-full text-white">Blog</span>
@@ -68,11 +68,6 @@ const Header = () => {
                 <Navbar.Link>
                     <NavLink to="/about" className={({ isActive }) => (isActive ? "text-blue-500" : "")}>
                         About
-                    </NavLink>
-                </Navbar.Link>
-                <Navbar.Link>
-                    <NavLink to="/projects" className={({ isActive }) => (isActive ? "text-blue-500" : "")}>
-                        Projects
                     </NavLink>
                 </Navbar.Link>
             </Navbar.Collapse>

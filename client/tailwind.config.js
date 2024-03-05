@@ -8,5 +8,5 @@ export default {
             "my-dark": "#0c0c1d",
         },
     },
-    plugins: [require("flowbite/plugin")],
+    plugins: [require("flowbite/plugin"), require("tailwind-scrollbar")],
 };
