@@ -39,8 +39,8 @@ export const getAllUsers = async (req, res, next) => {
         const now = new Date();
         const lastMonthUsers = await User.countDocuments({
             createdAt: {
-                $gte: new Date(now.getFullYear(), now.getMonth() - 1, 1),
-                $lte: new Date(now.getFullYear(), now.getMonth(), 0),
+                $gte: new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()),
+                $lte: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
             },
         });
         res.status(200).json(new ApiResponse(200, "Users fetched successfully", { users, totalUsers, lastMonthUsers }));
@@ -89,8 +89,16 @@ export const getUser = async (req, res, next) => {
     try {
         const { email, username } = req.body;
         const { id } = req.params;
-        const user = await User.findOne({ $or: [{ username }, { email }, { _id: id }] }).select("-password");
+        let user;
+        if (email || username) {
+            user = await User.findOne({ $or: [{ email }, { username }] });
+        } else if (id) {
+            user = await User.findById(id);
+            console.log(user);
+        }
+
         if (!user) {
+            // console.log(id);
             return next(new AppError(404, "User not found"));
         }
         res.status(200).json(new ApiResponse(200, "User fetched successfully", user));

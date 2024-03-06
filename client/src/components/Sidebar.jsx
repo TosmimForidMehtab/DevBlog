@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Sidebar } from "flowbite-react";
 import { HiUser, HiOutlineLogout, HiDocumentText, HiOutlineUserGroup } from "react-icons/hi";
+import { MdDashboard } from "react-icons/md";
+import { FaComments } from "react-icons/fa";
 import axios from "axios";
 import { singOutSuccess } from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,6 +36,11 @@ const SideBar = () => {
                         Profile
                     </Sidebar.Item>
                     {user.isAdmin && (
+                        <Sidebar.Item href="/dashboard?tab=dash" icon={MdDashboard} active={tab === "dash" || !tab}>
+                            Dashboard
+                        </Sidebar.Item>
+                    )}
+                    {user.isAdmin && (
                         <Sidebar.Item href="/dashboard?tab=posts" icon={HiDocumentText} active={tab === "posts"}>
                             Posts
                         </Sidebar.Item>
@@ -43,6 +50,12 @@ const SideBar = () => {
                             Users
                         </Sidebar.Item>
                     )}
+                    {user.isAdmin && (
+                        <Sidebar.Item href="/dashboard?tab=comments" icon={FaComments} active={tab === "comments"}>
+                            Comments
+                        </Sidebar.Item>
+                    )}
+
                     <Sidebar.Item className="cursor-pointer" icon={HiOutlineLogout} onClick={handleSignout}>
                         Sign Out
                     </Sidebar.Item>

@@ -26,7 +26,7 @@ const UpdatePost = () => {
                         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
                     },
                 });
-                // console.log(response.data.data.posts[0]);
+                console.log(response.data.data.posts[0]);
                 setFormData(response.data.data.posts[0]);
             } catch (error) {
                 console.log(error);
@@ -66,11 +66,6 @@ const UpdatePost = () => {
             console.log(response?.data.data);
             setPublishing(false);
             setPublished(response?.data.message);
-            setFormData({
-                title: "",
-                category: "",
-                content: "",
-            });
 
             navigate(`/post/${response?.data?.data.slug}`);
         } catch (error) {
@@ -80,13 +75,13 @@ const UpdatePost = () => {
         }
     };
 
-    console.log(formData);
+    // console.log(formData);
     return (
         <div className="p-3 min-h-screen mx-auto">
             <h1 className="text-center text-3xl font-bold my-7">Update post</h1>
             <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                 <div className="flex flex-col sm:flex-row gap-4 justify-between">
-                    <TextInput id="title" type="text" placeholder="Title" required className="flex-1" onChange={handleChange} value={formData.title || ""} />
+                    <TextInput id="title" type="text" placeholder="Title" required className="flex-1" onChange={handleChange} value={formData.title} />
 
                     <Select id="category" onChange={handleChange} value={formData.category}>
                         <option value="uncategorized">Select a category</option>

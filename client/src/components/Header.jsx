@@ -1,6 +1,6 @@
 import { Avatar, Button, Dropdown, Navbar, TextInput } from "flowbite-react";
-import React from "react";
-import { Link, NavLink } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { AiOutlineSearch } from "react-icons/ai";
 import { FaMoon, FaSun } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
@@ -12,6 +12,23 @@ const Header = () => {
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.user);
     const { theme } = useSelector((state) => state.theme);
+    const location = useLocation();
+    const [searchTerm, setSearchTerm] = useState("");
+    const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(location.search);
+        const searchTermFromUrl = urlParams.get("searchTerm");
+
+        if (searchTermFromUrl) {
+            setSearchTerm(searchTermFromUrl);
+        }
+    }, [location.search]);
+    // console.log(searchTerm);
     const handleSignout = () => {
         try {
             const _ = axios.post(`${API_URL}/users/signout`);
@@ -21,6 +38,15 @@ const Header = () => {
             console.log(error);
         }
     };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const urlParams = new URLSearchParams(location.search);
+        urlParams.set("searchTerm", searchTerm);
+        const searchQuery = urlParams.toString();
+        navigate(`/search?${searchQuery}`);
+    };
     return (
         <Navbar className="border-b-4 sticky top-0 z-50">
             <Link to="/" className="text-sm sm:text-xl font-semibold whitespace-nowrap self-center dark:text-white">
@@ -28,8 +54,8 @@ const Header = () => {
                 <span className="px-2 py-1 bg-red-500 rounded-e-full text-white">Blog</span>
             </Link>
 
-            <form>
-                <TextInput type="search" placeholder="Search" aria-label="Search" icon={AiOutlineSearch} className="hidden sm:inline" />
+            <form onSubmit={handleSubmit}>
+                <TextInput type="search" placeholder="Search" aria-label="Search" icon={AiOutlineSearch} className="hidden sm:inline" onChange={handleChange} value={searchTerm} />
             </form>
             <Button color="purple" className="w-12 h-10 sm:hidden" pill>
                 <AiOutlineSearch />

@@ -1,7 +1,6 @@
-import mongoose from "mongoose";
 import { Post } from "../models/post.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { AppError } from "../utils/AppError.js";
+import { AppError } from "../utils/appError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 export const createPost = async (req, res, next) => {
     const { title, content, category } = req.body;
@@ -71,16 +70,17 @@ export const getPosts = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 9;
     const sortDirection = req.query.sort === "asc" ? 1 : -1;
     try {
+        const { category } = req.query;
         const posts = await Post.find({
             ...(req.query.userId && { userId: req.query.userId }),
-            ...(req.query.category && { category: req.query.category }),
+            ...(req.query.category && req.query.category !== "all" && { category: req.query.category }),
             ...(req.query.slug && { slug: req.query.slug }),
             ...(req.query.postId && { _id: req.query.postId }),
             ...(req.query.searchTerm && {
                 $or: [{ title: { $regex: req.query.searchTerm, $options: "i" } }, { content: { $regex: req.query.searchTerm, $options: "i" } }],
             }),
         })
-            .sort({ createdAt: sortDirection })
+            .sort({ updatedAt: sortDirection })
             .skip(startIndex)
             .limit(limit);
 
@@ -95,10 +95,12 @@ export const getPosts = async (req, res, next) => {
         const totalPosts = await Post.countDocuments();
 
         const now = new Date();
-        const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
 
         const lastMonthsPosts = await Post.countDocuments({
-            createdAt: { $gte: oneMonthAgo },
+            createdAt: {
+                $gte: new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()),
+                $lt: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+            },
         });
 
         return res.status(200).json(new ApiResponse(200, "Posts fetched successfully", { posts, totalPosts, lastMonthsPosts }));

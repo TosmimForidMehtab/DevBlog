@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Comment from "./Comment";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -16,6 +17,7 @@ const CommentSection = ({ id }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -58,6 +60,8 @@ const CommentSection = ({ id }) => {
     useEffect(() => {
         const fetchComments = async () => {
             try {
+                setError("");
+                setSuccess("");
                 const response = await axios.get(`${API_URL}/comments/${id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -65,13 +69,72 @@ const CommentSection = ({ id }) => {
                 });
                 setComments(response.data.data);
             } catch (error) {
+                setError("");
                 console.log(error);
             }
         };
         fetchComments();
     }, [id]);
+
+    const handleLike = async (commentId) => {
+        try {
+            setError("");
+            setSuccess("");
+            if (!user?.user) {
+                navigate("/signin");
+                return;
+            }
+            const response = await axios.put(
+                `${API_URL}/comments/like/${commentId}`,
+                {},
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                    },
+                }
+            );
+            setComments(
+                comments.map((c) =>
+                    c._id === commentId
+                        ? {
+                              ...c,
+                              likes: response.data.data.likes,
+                              numberOfLikes: response.data.data.numberOfLikes,
+                          }
+                        : c
+                )
+            );
+        } catch (error) {
+            setError("");
+            console.log(error);
+        }
+    };
+
+    const handleDelete = async (commentId) => {
+        setError("");
+        setSuccess("");
+        setSuccess("");
+        try {
+            if (!user?.user) {
+                navigate("/signin");
+                return;
+            }
+            const response = await axios.delete(`${API_URL}/comments/${commentId}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+            });
+            setComments(comments.filter((c) => c._id !== commentId));
+            setSuccess(response.data.message);
+        } catch (error) {
+            setError(error.response?.data?.message || error.message);
+            console.log(error);
+        }
+    };
     return (
-        <div className="w-full max-w-xl mx-auto p-3">
+        <div className="w-full max-w-2xl mx-auto p-3">
             {user?.user ? (
                 <div className="flex gap-2 items-center my-5 text-sm">
                     <p>Signed in as</p>
@@ -123,7 +186,7 @@ const CommentSection = ({ id }) => {
                     </div>
 
                     {comments.map((comment) => (
-                        <Comment key={comment._id} comment={comment} />
+                        <Comment key={comment._id} comment={comment} onLike={handleLike} onDelete={handleDelete} />
                     ))}
                 </>
             )}
