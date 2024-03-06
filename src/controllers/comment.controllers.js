@@ -1,7 +1,5 @@
 import { Comment } from "../models/comment.model.js";
-import { User } from "../models/user.model.js";
-import { Post } from "../models/post.model.js";
-import { AppError } from "../utils/appError.js";
+import { AppError } from "../utils/AppError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 export const createComment = async (req, res, next) => {
     try {

@@ -1,6 +1,6 @@
 import { Post } from "../models/post.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { AppError } from "../utils/appError.js";
+import { AppError } from "../utils/AppError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 export const createPost = async (req, res, next) => {
     const { title, content, category } = req.body;
