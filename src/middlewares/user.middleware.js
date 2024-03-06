@@ -1,5 +1,5 @@
 import { User } from "../models/user.model.js";
-import { AppError } from "../utils/appError.js";
+import { AppError } from "../utils/AppError.js";
 import jwt from "jsonwebtoken";
 import validator from "validator";
 export const validateCreateUser = (req, res, next) => {
