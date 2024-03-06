@@ -70,7 +70,6 @@ export const getPosts = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 9;
     const sortDirection = req.query.sort === "asc" ? 1 : -1;
     try {
-        const { category } = req.query;
         const posts = await Post.find({
             ...(req.query.userId && { userId: req.query.userId }),
             ...(req.query.category && req.query.category !== "all" && { category: req.query.category }),

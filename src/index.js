@@ -9,6 +9,9 @@ import userRoutes from "./routes/user.routes.js";
 import postRoutes from "./routes/post.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import { errorHandler } from "./utils/ErrorHandler.js";
+import path from "path";
+
+const __dirname = path.resolve();
 
 const app = express();
 app.use(cors());
@@ -22,6 +25,12 @@ connectDB();
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/comments", commentRoutes);
+
+app.use(express.static(path.join(__dirname, "/client/dist")));
+
+app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"));
+});
 
 app.use(errorHandler);
 
