@@ -65,6 +65,14 @@ const UserDetails = () => {
             <h1 className="text-3xl font-bold mb-4">User Details</h1>
             {user ? (
                 <div className="flex  gap-5 flex-wrap justify-center">
+                    <Card className="max-w-xl w-full rounded-l-full text-center h-40">
+                        <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Profile Picture</h5>
+                    </Card>
+
+                    <Card className="max-w-xl w-56 h-40 rounded-r-full text-center">
+                        <img src={user?.profilePic} alt="user" className="w-40 h-40 rounded-full" />
+                    </Card>
+
                     <Card className="max-w-xl w-full">
                         <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Username</h5>
                         <p className="font-normal text-gray-500 dark:text-gray-400 text-xl">{user?.username}</p>
@@ -82,12 +90,6 @@ const UserDetails = () => {
                         <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Total Posts</h5>
                         <p className="font-normal text-gray-500 dark:text-gray-400 text-xl">{posts.length}</p>
                     </Card>
-
-                    <Card className="max-w-xl w-44 rounded-l-full text-center">
-                        <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Profile Picture</h5>
-                    </Card>
-
-                    <img src={user?.profilePic} alt="user" className="w-40 h-40 rounded-full" />
                 </div>
             ) : (
                 <div className="flex justify-center items-center h-screen">

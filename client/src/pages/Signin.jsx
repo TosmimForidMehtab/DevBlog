@@ -68,7 +68,7 @@ const Signin = () => {
                             </div>
                             <div>
                                 <Label htmlFor="password" value="Your password" />
-                                <div className="flex items-center">
+                                <div className="flex items-center relative">
                                     {/* <TextInput id="password" type={show ? "text" : "password"} placeholder="P@ssword123" className="w-full outline-none" onChange={handleChange} /> */}
                                     <TextInput id="password" type={show ? "text" : "password"} placeholder="**********" className="w-full outline-none" onChange={handleChange} required />
                                     <Button
@@ -77,8 +77,8 @@ const Signin = () => {
                                             setShow(!show);
                                             dispatch(setErrorMsg());
                                         }}
-                                        size={"sm"}
-                                        pill
+                                        size={"md"}
+                                        className="ml-2 absolute right-0"
                                     >
                                         {show ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
                                     </Button>

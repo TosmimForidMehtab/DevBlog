@@ -3,7 +3,6 @@
 [-] Automatically creates user with null in redux even when not signed in and shows home page
 [-] Updated form data not working when image is changed
 [-] In the Comments tab, show user name and post title
-[-] User details page
 
 ##################################BACKEND#############################
 [-] In comments model userId and postId should be of type mongoose.Types.ObjectId
