@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Button, Modal, Table } from "flowbite-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { deleteUserSuccess } from "../redux/user/userSlice";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const Users = () => {
@@ -15,6 +16,8 @@ const Users = () => {
     const [showMore, setShowMore] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [userId, setuserId] = useState(null);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -74,6 +77,11 @@ const Users = () => {
                 ...users,
                 users: users.users.filter((user) => user._id !== userId),
             });
+            if (userId === user._id) {
+                dispatch(deleteUserSuccess());
+                localStorage.removeItem("accessToken");
+                navigate("/signin");
+            }
         } catch (error) {
             console.log(error);
             setError(error.response?.data?.message || error.message);
