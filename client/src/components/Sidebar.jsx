@@ -26,7 +26,7 @@ const SideBar = () => {
         const urlParams = new URLSearchParams(location.search);
         const tabFromUrl = urlParams.get("tab");
         setTab(tabFromUrl);
-        console.log(tabFromUrl);
+        // console.log(tabFromUrl);
     }, [location.search]);
     return (
         <Sidebar className="w-full sm:w-64">

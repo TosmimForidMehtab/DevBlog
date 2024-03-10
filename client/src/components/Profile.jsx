@@ -9,7 +9,7 @@ import { updateStart, updateSuccess, updateFailure, setErrorMsg, deleteUserStart
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Profile = () => {
@@ -192,6 +192,18 @@ const Profile = () => {
                     </span>
                 </div>
             </form>
+
+            {user && !user.isAdmin && (
+                <div className="text-center mt-4">
+                    Verify your email&nbsp;
+                    <span>
+                        <Link to="/verify-email" className="text-blue-500">
+                            here
+                        </Link>
+                    </span>{" "}
+                    to be an admin.
+                </div>
+            )}
 
             {errorMsg && <ToastContainer position="top-center">{toast.error(errorMsg)}</ToastContainer>}
             {userUpdateSuccess && <ToastContainer position="top-center">{toast.success("Profile updated successfully")}</ToastContainer>}

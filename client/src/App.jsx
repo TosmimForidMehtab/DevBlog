@@ -18,6 +18,7 @@ import Post from "./pages/Post.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import UserDetails from "./pages/UserDetails.jsx";
 import Search from "./pages/Search.jsx";
+import Verify from "./pages/Verify.jsx";
 const App = () => {
     return (
         <>
@@ -32,6 +33,7 @@ const App = () => {
                 <Route path="/search" element={<Search />} />
                 <Route element={<PrivateRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/verify-email" element={<Verify />} />
                 </Route>
                 <Route element={<AdminRoute />}>
                     <Route path="/create-post" element={<CreatePost />} />

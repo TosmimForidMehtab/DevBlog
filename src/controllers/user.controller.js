@@ -1,6 +1,8 @@
 import { User } from "../models/user.model.js";
 import { AppError } from "../utils/AppError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { mailer } from "../utils/mailer.js";
+import jwt from "jsonwebtoken";
 
 export const createUser = async (req, res, next) => {
     try {
@@ -197,5 +199,58 @@ export const signOut = (req, res, next) => {
         res.clearCookie("accessToken").status(200).json(new ApiResponse(200, "User signed out successfully"));
     } catch (error) {
         next(new AppError(error.statusCode, error.message));
+    }
+};
+
+export const sendOtp = async (req, res, next) => {
+    const { email } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return next(new AppError(404, "User not found"));
+        }
+        const otp = mailer(email);
+        const otpToken = jwt.sign({ otp }, process.env.OTP_SECRET, {
+            expiresIn: "10m",
+        });
+        user.otp = otpToken;
+        await user.save();
+        return res.status(200).json(new ApiResponse(200, "OTP sent successfully", null));
+        // next();
+    } catch (error) {
+        next(new AppError(error.statusCode, error.message));
+    }
+};
+
+export const verifyOtp = async (req, res, next) => {
+    const { email, otp } = req.body;
+
+    try {
+        if (!otp) {
+            return next(new AppError(400, "OTP must be provided"));
+        }
+        const user = await User.findOne({ email });
+        if (!user) {
+            return next(new AppError(404, "User not found"));
+        }
+        const decodedOtp = jwt.verify(user.otp, process.env.OTP_SECRET);
+        if (parseInt(decodedOtp.otp) !== parseInt(otp)) {
+            return next(new AppError(400, "Invalid OTP"));
+        }
+
+        user.otp = null;
+        user.isAdmin = true;
+        await user.save();
+
+        return res.status(200).json(new ApiResponse(200, "OTP verified successfully", null));
+    } catch (error) {
+        if (error.message === "jwt must be provided") {
+            console.log(error);
+            return next(new AppError(400, "OTP must be provided"));
+        }
+        if (error.message === "jwt expired") {
+            return next(new AppError(400, "OTP expired"));
+        }
+        return next(new AppError(error.statusCode, error.message));
     }
 };
