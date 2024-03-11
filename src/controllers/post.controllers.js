@@ -110,7 +110,10 @@ export const getPosts = async (req, res, next) => {
 
 export const updatePost = async (req, res, next) => {
     try {
-        const slug = req.body.title.split(" ").join("-").toLowerCase().replace("/[^a-zA-Z0-9]/g", "-");
+        let slug;
+        if (req.body?.title) {
+            slug = req.body.title.split(" ").join("-").toLowerCase().replace("/[^a-zA-Z0-9]/g", "-");
+        }
         const updatedPost = await Post.findByIdAndUpdate(
             req.params.id,
             {
